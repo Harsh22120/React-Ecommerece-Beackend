@@ -6,8 +6,10 @@ const cookieParser=require('cookie-parser');
 const User = require('./models/user');
 const Product = require('./models/Product');
 const Cart = require("./models/cart");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 const {auth} =require('./middlewares/auth');
-const req = require('express/lib/request');
+//const req = require('express/lib/request');
+//const { route } = require('express/lib/application');
 const db=require('./config/config').get(process.env.NODE_ENV);
 
 const app=express();
@@ -48,8 +50,24 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-
-//cart
+//payment
+app.post("/api/payment", (req, res) => {
+  stripe.charges.create(
+    {
+      source: req.body.tokenId,
+      amount: req.body.amount,
+      currency: "usd",
+    },
+    (stripeErr, stripeRes) => {
+      if (stripeErr) {
+        res.status(500).json(stripeErr);
+      } else {
+        res.status(200).json(stripeRes);
+      }
+    }
+  );
+});
+ 
 //post cart
 app.post("/api/carts/:id", async (req, res) => {
   const { productId, quantity, name, price } = req.body;
