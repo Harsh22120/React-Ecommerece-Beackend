@@ -1,12 +1,15 @@
 const express=require('express');
 const mongoose= require('mongoose');
+const Razorpay = require('razorpay');
+const razorpayInstance = new Razorpay({ key_id:"rzp_test_7IGHa5Igq6Gaka", key_secret:"mRoDKlM46ZbFy7pRvprHKxl8"});
 
 const bodyparser=require('body-parser');
 const cookieParser=require('cookie-parser');
 const User = require('./models/user');
 const Product = require('./models/Product');
 const Cart = require("./models/cart");
-const stripe = require("stripe")(process.env.STRIPE_KEY);
+const Order = require("./models/Order");
+
 const {auth} =require('./middlewares/auth');
 //const req = require('express/lib/request');
 //const { route } = require('express/lib/application');
@@ -23,6 +26,40 @@ mongoose.Promise=global.Promise;
 mongoose.connect(db.DATABASE,{ useNewUrlParser: true,useUnifiedTopology:true },function(err){
     if(err) console.log(err);
     console.log("database is connected");
+});
+
+//create order
+app.post('/api/createOrder', (req, res)=>{
+  const {amount,currency,receipt, notes}  = req.body; 
+  razorpayInstance.orders.create({amount, currency, receipt, notes}, 
+    (err, order)=>{
+
+      if(!err)
+        res.json(order)
+      else
+        res.send(err);
+    }
+  )
+});
+
+app.post('/api/verifyorder', (req, res)=>{
+  //Receive Payment Data
+  const {order_id, payment_id} = req.body;     
+  const razorpay_signature =  req.headers['x-razorpay-signature'];
+   
+   //Verification & Send Response to User
+     // Creating hmac object 
+    let hmac = crypto.createHmac('sha256', key_secret); 
+    // Passing the data to be hashed
+    hmac.update(order_id + "|" + payment_id);
+    // Creating the hmac in the required format
+    const generated_signature = hmac.digest('hex');
+
+    if(razorpay_signature===generated_signature){
+        res.json({success:true, message:"Payment has been verified"})
+    }
+    else
+    res.json({success:false, message:"Payment verification failed"})
 });
 
 
@@ -167,6 +204,39 @@ app.get("/carts", async (req, res) => {
   }
 });
 
+//Order
+//Create order
+/*app.post("/api/orders", async (req, res) => {
+  const newOrder = new Order(req.body);
+
+  try {
+    const savedOrder = await newOrder.save();
+    res.status(200).json(savedOrder);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+//GET USER ORDERS
+app.get("/find/:userId", async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId });
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+//GET ALL ORDERS
+app.get("/api/order", async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+*/
 //payment
 app.post("/api/payment", (req, res) => {
   //console.log("line 60 indexjs ",tokenId);
