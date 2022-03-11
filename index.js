@@ -52,22 +52,25 @@ app.get("/api/products", async (req, res) => {
 
 //payment
 app.post("/api/payment", (req, res) => {
-  stripe.charges.create(
-    {
-      source: req.body.tokenId,
-      amount: req.body.amount,
-      currency: "usd",
-    },
-    (stripeErr, stripeRes) => {
-      if (stripeErr) {
-        res.status(500).json(stripeErr);
-      } else {
-        res.status(200).json(stripeRes);
-      }
+  //console.log("line 60 indexjs ",tokenId);
+ // console.log("line 61 indexjs",amount);
+ stripe.charges.create(
+  {
+    source: req.body.tokenId,
+    amount: req.body.amount,
+    currency: "usd",
+  },
+  (stripeErr, stripeRes) => {
+    if (stripeErr) {
+      res.status(500).json(stripeErr);
+    } else {
+      res.status(200).json(stripeRes);
     }
-  );
+  }
+);
 });
- 
+
+
 //post cart
 app.post("/api/carts/:id", async (req, res) => {
   const { productId, quantity, name, price } = req.body;
