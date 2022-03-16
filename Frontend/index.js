@@ -7,7 +7,7 @@
         description: "Pay & Checkout this Course, Upgrade your DSA Skill",
         image: `https://media.geeksforgeeks.org/wp-content/uploads/
                         20210806114908/dummy-200x200.png`,
-        order_id: "order_J5nYyM8DtOIzfN",
+        order_id: "order_J7i7KqaWECS02b",
         handler: `function (response){
                 console.log(response)
                 alert("This step of Payment Succeeded");

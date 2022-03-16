@@ -9,7 +9,7 @@ const User = require('./models/user');
 const Product = require('./models/Product');
 const Cart = require("./models/cart");
 const Order = require("./models/Order");
-
+const Payment = require("./models/Payment");
 const {auth} =require('./middlewares/auth');
 //const req = require('express/lib/request');
 //const { route } = require('express/lib/application');
@@ -237,24 +237,32 @@ app.get("/api/order", async (req, res) => {
   }
 });
 */
+
 //payment
-app.post("/api/payment", (req, res) => {
-  //console.log("line 60 indexjs ",tokenId);
- // console.log("line 61 indexjs",amount);
- stripe.charges.create(
-  {
-    source: req.body.tokenId,
-    amount: req.body.amount,
-    currency: "usd",
-  },
-  (stripeErr, stripeRes) => {
-    if (stripeErr) {
-      res.status(500).json(stripeErr);
-    } else {
-      res.status(200).json(stripeRes);
-    }
-  }
-);
+app.post("/api/payment/:id", async (req, res) => {
+     //console.log( "/api/payment/:id i sgetting called  ", req.body);
+      
+      const id = req.params.id,
+      UserId = id
+      const payment = new Payment ({
+          productId : req.body.productId,
+          cartId: req.body.cartId,
+          paymentId : req.body.paymentId,
+          orderId : req.body.orderId,
+          UserId,
+      })
+      payment.save((err, data) => {
+
+        console.log("err", err, "data", data)
+        if(err) {
+          res.status(500).send(err);
+        }
+        else{
+          console.log(err);
+          res.status(500).send("Sucess full");
+        }
+      })
+ 
 });
 
 //logout user
