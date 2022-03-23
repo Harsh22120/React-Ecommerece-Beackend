@@ -2,7 +2,7 @@ const express=require('express');
 const mongoose= require('mongoose');
 const Razorpay = require('razorpay');
 const razorpayInstance = new Razorpay({ key_id:"rzp_test_7IGHa5Igq6Gaka", key_secret:"mRoDKlM46ZbFy7pRvprHKxl8"});
-
+const cors = require('cors'); 
 const bodyparser=require('body-parser');
 const cookieParser=require('cookie-parser');
 const User = require('./models/user');
@@ -10,6 +10,7 @@ const Product = require('./models/Product');
 const Cart = require("./models/cart");
 const Order = require("./models/Order");
 const Payment = require("./models/Payment");
+const morgan = require("morgan");
 const {auth} =require('./middlewares/auth');
 //const req = require('express/lib/request');
 //const { route } = require('express/lib/application');
@@ -20,7 +21,8 @@ const app=express();
 app.use(bodyparser.urlencoded({extended : false}));
 app.use(bodyparser.json());
 app.use(cookieParser());
-
+app.use(morgan("dev"));
+app.use(cors());
 // database connection
 mongoose.Promise=global.Promise;
 mongoose.connect(db.DATABASE,{ useNewUrlParser: true,useUnifiedTopology:true },function(err){
@@ -142,6 +144,22 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
+//product find by id
+app.get('/api/product/:productId', async (req, res) => {
+  Product.find({id: req.params.productId})
+  .then((productId) => {
+    if(productId) {
+      console.log("productId", productId);
+      res.send(productId);
+    }
+  })
+  .catch((err) => {
+    console.log("err", err);
+    res.status(500).send({
+      message:err.message|| "Some error for retriving a products."
+    });
+  });
+});
 //post cart
 app.post("/api/carts/:id", async (req, res) => {
   const { productId, quantity, name, price } = req.body;
@@ -291,7 +309,7 @@ app.get('/',function(req,res){
 });
 
 // listening port
-const PORT=process.env.PORT||3000;
+const PORT = process.env.PORT || 4000;
 app.listen(PORT,()=>{
     console.log(`app is live at ${PORT}`);
 });
