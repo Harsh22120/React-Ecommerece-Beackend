@@ -145,7 +145,7 @@ app.get("/api/products", async (req, res) => {
 });
 
 //product find by id
-app.get('/api/product/:productId', async (req, res) => {
+app.get('/product/:productId', async (req, res) => {
   Product.find({id: req.params.productId})
   .then((productId) => {
     if(productId) {
@@ -160,6 +160,7 @@ app.get('/api/product/:productId', async (req, res) => {
     });
   });
 });
+
 //post cart
 app.post("/api/carts/:id", async (req, res) => {
   const { productId, quantity, name, price } = req.body;

@@ -13,7 +13,7 @@
                 alert("This step of Payment Succeeded");
             }`,
         prefill: {
-            contact: "9714898292",
+            contact: "9714898292",     
             name: "Harsh Gajera",
             email: "gajeraharsh52438@gmail.com",
         },
